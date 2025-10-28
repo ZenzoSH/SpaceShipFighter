@@ -1,6 +1,7 @@
 import os
 import pygame
 from pygame import *
+pygame.init()  # Initialize pygame properly
 pygame.mixer.init()
 pygame.font.init()
 
@@ -12,7 +13,7 @@ pygame.font.init()
 
 WIDTH , HEIGHT = 900,500
 WIN= pygame.display.set_mode((WIDTH,HEIGHT))
-pygame.display.set_caption("Legendary Game")
+pygame.display.set_caption("Space War")
 
 
 
@@ -21,8 +22,8 @@ RED = (255,0,0)
 WHITE = (255,255,255)
 
 VEL = 5
-BULLET_VEL = 8
-MAX_BULLETS =  5
+BULLET_VEL = 12  # Increased from 8 to make bullets travel faster
+MAX_BULLETS = 8  # Increased from 5 to allow more shots
 
 SPACESHIP_WIDTH , SPACESIP_HEIGHT = (55,40)
 BORDER = pygame.Rect(WIDTH//2,0,10,HEIGHT)
@@ -79,20 +80,20 @@ def draw_window(red,yellow,r_bullets,y_bullets,red_health,yellow_health):
 
 def handle_bullets(y_bullets,r_bullets,yellow,red):
       for bullet in y_bullets:
-            bullet.x -= BULLET_VEL
+            bullet.x += BULLET_VEL  # Yellow shoots right, so positive velocity
             if red.colliderect(bullet):
                   pygame.event.post(pygame.event.Event(R_HIT))
                   y_bullets.remove(bullet)
-            elif bullet.x > WIDTH:
+            elif bullet.x > WIDTH:  # Remove when off right side of screen
                   y_bullets.remove(bullet)
      
      
       for bullet in r_bullets:
-            bullet.x += BULLET_VEL
+            bullet.x -= BULLET_VEL  # Red shoots left, so negative velocity
             if yellow.colliderect(bullet):
                   pygame.event.post(pygame.event.Event(Y_HIT))
                   r_bullets.remove(bullet)
-            elif bullet.x < 0:
+            elif bullet.x < 0:  # Remove when off left side of screen
                   r_bullets.remove(bullet)
 
 def draw_Winner(text):
@@ -132,9 +133,13 @@ def red_handle_movement(key_pressed,red):
 def main():
     print("The Rules of the games are:\n")
     print("1. There are two players in the game.\n")
-    print("2. Each player can 10 LIVES.\n")
-    print("3. If you miss the opponent 5 times you will OUT OF BULLETS:\n")
-    print("NOW ENJOY:))\n")
+    print("2. Each player has 10 LIVES.\n")
+    print("3. Yellow Player: Move with WASD, Fire with LEFT CTRL\n")
+    print("4. Red Player: Move with ARROW KEYS, Fire with RIGHT SHIFT\n")
+    print("5. You can have up to 8 bullets on screen at once.\n")
+    print("6. Press ESC at any time to quit the game.\n")
+    print("NOW ENJOY :))\n")
+    
     red = pygame.Rect(700,300,SPACESHIP_WIDTH,SPACESIP_HEIGHT)
     yellow= pygame.Rect(100,300,SPACESHIP_WIDTH,SPACESIP_HEIGHT)
     clock = pygame.time.Clock()
@@ -151,23 +156,32 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
               run = False
-              pygame.quit()         
+              pygame.quit()
+              return  # Exit the function completely
+            
             if event.type == pygame.KEYDOWN:
+                  # Allow players to quit anytime with ESC key
+                  if event.key == pygame.K_ESCAPE:
+                        run = False
+                        pygame.quit()
+                        return  # Exit the function completely
+                  # Yellow player fires with LEFT CTRL
                   if event.key== pygame.K_LCTRL and len(y_bullets) < MAX_BULLETS:
                         bullet = pygame.Rect(yellow.x +yellow.width, yellow.y+yellow.height//2-2,10,5)
                         y_bullets.append(bullet) 
                         BULLET_FIRE_SOUND.play()       
                   
-                  if event.key == pygame.K_RCTRL and len(r_bullets) < MAX_BULLETS:
+                  # Red player fires with RIGHT SHIFT (changed from RIGHT CTRL)
+                  if event.key == pygame.K_RSHIFT and len(r_bullets) < MAX_BULLETS:
                         bullet = pygame.Rect(red.x , red.y + red.height//2-2,10,5)
                         r_bullets.append(bullet)
                         BULLET_FIRE_SOUND.play() 
 
             if event.type == R_HIT:
-                  yellow_health -= 1
+                  red_health -= 1
                   BULLET_HIT_SOUND.play()
             if event.type == Y_HIT:
-                  red_health -= 1
+                  yellow_health -= 1
                   BULLET_HIT_SOUND.play()
 
         winner_text = ""
@@ -178,31 +192,34 @@ def main():
 
         if winner_text!= "":
             draw_Winner(winner_text)
-            break
+            
+            # Show play again screen
+            print("\n" + winner_text)
+            print("Press SPACE to play again, or ESC to quit\n")
+            
+            waiting = True
+            while waiting:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        return
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_SPACE:
+                            waiting = False  # Break out of waiting loop to restart game
+                            main()  # Restart the game
+                            return
+                        elif event.key == pygame.K_ESCAPE:
+                            pygame.quit()
+                            return  # Exit completely
+        
         key_pressed = pygame.key.get_pressed()
         yellow_handle_movement(key_pressed,yellow)
         red_handle_movement(key_pressed,red)
-        draw_window(red,yellow,r_bullets,y_bullets,red_health,yellow_health)
         
-        handle_bullets(r_bullets,y_bullets,red ,yellow)
-              
-             
-    main()
+        handle_bullets(y_bullets,r_bullets,yellow ,red)
+        draw_window(red,yellow,r_bullets,y_bullets,red_health,yellow_health)
 
 
 
 if __name__ == "__main__":
       main()
-
-
-        
-        
-        
-        
-
-
-
-
-
-
-
