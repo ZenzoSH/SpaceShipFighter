@@ -8,6 +8,11 @@ A 2-player space combat game built with Pygame where two spaceships battle again
 - Shoot bullets to defeat your opponent
 - Features sound effects and space background
 
+<img width="894" height="493" alt="image" src="https://github.com/user-attachments/assets/70e1bb35-4dc8-405d-9c11-6d625aa9e573" />
+
+<img width="898" height="498" alt="image" src="https://github.com/user-attachments/assets/eb6e6686-9dff-4b50-b9b6-19dc28499245" />
+
+
 ## Prerequisites
 - Python 3.x
 - Pygame library
